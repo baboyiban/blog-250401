@@ -9,7 +9,11 @@ COPY . .
 
 RUN mkdir -p db
 
-RUN go build -o main ./src/cmd/api/main.go
+# gcc 설치
+RUN apk update && apk add --no-cache gcc musl-dev
+
+# CGO 활성화
+RUN CGO_ENABLED=1 go build -o main ./src/cmd/api/main.go
 
 FROM alpine:latest
 
