@@ -1,0 +1,43 @@
+services:
+  backend:
+    platform: linux/amd64
+    build:
+      context: ./backend
+    image: chl11wq12/blog-250401-backend:v0.0.0
+    expose:
+      - "8080" # 백엔드 API 서비스 포트
+    networks:
+      - app-network
+    volumes:
+      - backend_db:/app/db # Mount a volume to the /app/db directory
+
+  frontend:
+    platform: linux/amd64
+    build:
+      context: ./frontend
+    image: chl11wq12/blog-250401-frontend:v0.0.0
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - "80:80" # HTTP 포트
+      - "443:443" # HTTPS 포트
+      - "81:81" # NPM 관리 UI 포트
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+  backend_db:
