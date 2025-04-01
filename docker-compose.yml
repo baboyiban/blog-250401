@@ -1,9 +1,10 @@
 services:
   backend:
+    container_name: blog-backend
     platform: linux/amd64
     build:
       context: ./backend
-    image: chl11wq12/blog-250401-backend:v0.0.0
+    image: chl11wq12/blog-250401-backend:v1.0.0 # 태그 사용
     environment:
       - GIN_MODE=release
     expose:
@@ -12,18 +13,34 @@ services:
       - app-network
     volumes:
       - backend_db:/app/db # Mount a volume to the /app/db directory
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/posts"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
+    container_name: blog-frontend
     platform: linux/amd64
     build:
       context: ./frontend
-    image: chl11wq12/blog-250401-frontend:v0.0.0
+    image: chl11wq12/blog-250401-frontend:v1.0.0 # 태그 사용
     depends_on:
       - backend
     networks:
       - app-network
+    expose:
+      - "80" # Frontend Nginx 포트 (내부적으로만 사용)
+    environment:
+      - API_URL=http://backend:8080 # 백엔드 API 서버 주소
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx-proxy-manager:
+    container_name: blog-npm
     image: jc21/nginx-proxy-manager:latest
     ports:
       - "80:80" # HTTP 포트
