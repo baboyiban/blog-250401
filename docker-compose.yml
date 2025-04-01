@@ -31,8 +31,6 @@ services:
       - app-network
     expose:
       - "80" # Frontend Nginx 포트 (내부적으로만 사용)
-    environment:
-      - API_URL=http://backend:8080 # 백엔드 API 서버 주소
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
